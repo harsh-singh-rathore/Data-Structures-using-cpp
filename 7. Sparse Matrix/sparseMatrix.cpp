@@ -62,13 +62,47 @@ void TransposeSparseMatrix(sparseMatrix mat[], sparseMatrix transpose[]) {
     }
 }
 
+void FastTranspose(sparseMatrix a[], sparseMatrix b[])
+{
+    int row_terms[MAX_TERMS], starting_pos[MAX_TERMS];
+    int i, j, num_cols=a[0].col, num_terms=a[0].value;
+    b[0].row=num_cols;
+    b[0].col=a[0].row;
+    b[0].value=num_terms;
+
+    if(num_terms>0) {
+        for(i=0; i<num_cols; i++) {
+            row_terms[i]=0;
+        }
+        for(i=1; i<=num_terms; i++) {
+            row_terms[a[i].col]++;
+        }
+        starting_pos[0]=1;
+        for(i=1; i<num_cols; i++) {
+            starting_pos[i] = starting_pos[i-1] + row_terms[i-1];
+        }
+        for(i=1; i<=num_terms; i++){
+            j = starting_pos[a[i].col]++;
+            b[j].row = a[i].col;
+            b[j].col = a[i].row;
+            b[j].value = a[i].value;
+        }
+    }
+}
+
+
+
+
 int main()
 {
     InsertMatrix(term, 3, 3);
     ExpandSparseMatrix(term);
     cout<<endl;
     sparseMatrix transpose[term[0].row*term[0].col];
+    sparseMatrix transpose1[term[0].row*term[0].col];
     TransposeSparseMatrix(term, transpose);
     ExpandSparseMatrix(transpose);
+    FastTranspose(term, transpose1);
+    ExpandSparseMatrix(transpose1);
     return 0;
 }
